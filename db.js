@@ -25,7 +25,7 @@ const ID_TYPE = Sequelize.STRING(50);
 
 // 对模型的定义进行规范
 //自动加入id,createdAt,updatedAt,version等属性
-function defineModel(name, attributes, classMethods) {
+function defineModel(name, attributes, classMethods, instanceMethods) {
     var attrs = {};
     for (let key in attributes) {
         let value = attributes[key];
@@ -81,6 +81,7 @@ function defineModel(name, attributes, classMethods) {
         tableName: name,
         timestamps: false,
         classMethods: classMethods,
+        instanceMethods: instanceMethods,
         hooks: {
             beforeValidate: function (obj) {
                 let now = Date.now();

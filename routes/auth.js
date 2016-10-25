@@ -7,14 +7,8 @@ var User = require('../models/User');
 router.post('/register', function(req, res) {
     var 
         email = req.body.email,
-        password = req.body.password;
-    // 检验用户两次输入的密码是否一致,交给前端处理
-    // if (password_re != password) {
-    //     req.flash('error', '两次输入的密码不一致!'); 
-    //     return res.redirect('/reg');//返回注册页
-    // };
-    //生成密码的 md5 值
-    var md5 = crypto.createHash('md5'),
+        password = req.body.password,
+        md5 = crypto.createHash('md5'),
         password = md5.update(req.body.password).digest('hex');
     User.create({
         email: email,
@@ -23,14 +17,15 @@ router.post('/register', function(req, res) {
         console.log('created.' + JSON.stringify(u));
         //req.session.user = newUser; // 用户信息存入 session
         req.flash('flash_success', '注册成功!');
-        res.redirect('/');//注册成功后,转到登录页面
+        res.redirect('login');//注册成功后,转到登录页面
     }).catch(function (err){
         console.log('failed:' + err);
-        req.flash('flash_error','注册失败');
-        return res.redirect('/');
+        req.flash('flash_error','不明原因注册失败,请重试');
+        return res.redirect('register');
     });
 });
 
+// 验证注册邮箱ajax使用
 router.get('/validate', function(req, res){
     let email = req.query.email;
     res.status(200);
@@ -64,10 +59,34 @@ router.get('/login',function(req, res){
 
 // 提交登录表单
 router.post('/login',function(req, res){
-
+    var email = req.body.email,
+        password = req.body.password;
+    User.findOne({
+        'where':{
+            email: email
+        }
+    }).then(function(user){
+        if(user.verifyPassword(password)){
+            req.session.user = user; //把用户信息存入session
+            req.flash('flash_success', '登录成功');
+            res.redirect('/'); // 登录成功,返回主页
+        } else {
+            req.flash('flash_error', '用户名或密码错误');
+            res.redirect('login'); // 登录失败
+        }
+    }).catch(function(err){
+        console.log(err);
+        req.flash('flash_error', '用户名或密码错误');
+        res.redirect('login'); // 登录失败
+    })
 });
 
 
+router.get('/logout',function(req, res){
+    req.session.user = null;
+    req.flash('flash_success','登出成功');
+    res.redirect('/');
+})
 
 
 module.exports = router;

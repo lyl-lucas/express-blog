@@ -79,7 +79,8 @@ app.use(express.static(path.join(__dirname,'static')));
 // 处理flash响应
 app.use(function (req, res, next) {
     res.locals.flash_success = req.flash('flash_success');
-    res.locals.flash_error = req.flash('flash_error');        
+    res.locals.flash_error = req.flash('flash_error'); 
+    res.locals.current_user = req.session.user;       
     next();
 });
 

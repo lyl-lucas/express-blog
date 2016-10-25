@@ -1,4 +1,5 @@
 const db = require('../db');
+var crypto = require('crypto');
 
 module.exports = db.defineModel('users', {
     email: {
@@ -6,6 +7,12 @@ module.exports = db.defineModel('users', {
         unique: true
     },
     password: db.STRING(100)
+},{},{
+    verifyPassword: function(password){
+        let md5 = crypto.createHash('md5'),
+            password_md5 = md5.update(password).digest('hex');
+        return this.password === password_md5;
+    }
 });
 
 
