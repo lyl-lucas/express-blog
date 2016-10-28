@@ -9,9 +9,13 @@ var authroutes = require('./routes/auth');
 var flash = require('connect-flash');
 var session = require('express-session');
 var config = require('./config');
+// 添加Github登录
+var passport = require('passport')
+    , GithubStrategy = require('passport-github').Strategy;
 
 var app = express();
 
+// nunjucks模版设置
 function createEnv(path, opts) {
     var
         autoescape = opts.autoescape && true,
@@ -59,9 +63,19 @@ app.set('views', path.join(__dirname, 'views'));
 //   cookie: {maxAge: 1000 * 60 * 60 * 24 * 30},//30 days
 // }));
 
+//初始化 Passport
+passport.use(new GithubStrategy({
+  clientID: "8c03cd8defa76b94b8da",
+  clientSecret: "ba0933e63b84f42580aa8d0488d228ed530098c3",
+  callbackURL: "http://localhost:8080/auth/github/callback"
+}, function(accessToken, refreshToken, profile, done) {
+  done(null, profile);
+}));
+app.use(passport.initialize());
+
 app.use(session({
   secret: config.cookiesecret,
-  cookie: {maxAge: 1000 * 60 * 60 * 24 * 30},//30 days
+  maxAge: 1000*60*60*24*30,
 }));
 
 // 表单解析
@@ -71,7 +85,6 @@ app.use(cookieParser());
 // 加入flash
 app.use(flash());
 
-// var env = nunjucks.configure('views');
 // 使得res.render指向env.render
 env.express(app);
 app.use(express.static(path.join(__dirname,'static')));

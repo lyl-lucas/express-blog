@@ -18,6 +18,8 @@
     "nunjucks": "2.4.3",
     "sequelize": "3.24.1",
     "serve-favicon": "~2.3.0",
-    "supervisor": "^0.11.0"
+    "supervisor": "^0.11.0",
+    "passport": "*",
+    "passport-github": "*"
   }
 }
